@@ -147,6 +147,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CURRENCY = '$'
 
+AUTH_USER_MODEL = 'home.User'
+
 # CRISPY TEMPLATE PACKS
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap4"

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+
+{% load static %}
+
+    <head>
+
+        <!-- CSS -->
+        {% include 'include/css.html' %}
+
+        <!-- TITLE -->
+        {% block title %}{% endblock %}
+
+    </head>
+
+    <body>
+
+        <!-- PRELOADER -->
+        <div class="preloader">
+            <div class="lds-ripple">
+                <div class="lds-pos"></div>
+                <div class="lds-pos"></div>
+            </div>
+        </div>
+
+        <!-- MAIN WRAPER -->
+        <div
+        id="main-wrapper"
+        data-layout="vertical"
+        data-navbarbg="skin5"
+        data-sidebartype="full"
+        data-sidebar-position="absolute"
+        data-header-position="absolute"
+        data-boxed-layout="full"
+        >
+
+            <!-- TOPBAR -->
+            {% include 'include/topbar.html' %}
+
+            <!-- SIDEBAR -->
+            {% include 'include/sidebar.html' %}
+
+            <!-- PAGE WRAPPER -->
+            <div class="page-wrapper">
+
+                <!-- CONTENT -->
+                {% block content %}{% endblock %}
+
+                <!-- FOOTER -->
+                {% include 'include/footer.html' %}
+
+            </div>
+
+        </div>
+
+        <!-- MAIN SCRIPTS -->
+        {% include 'include/js.html' %}
+
+        <!-- PAGE SCRIPTS -->
+        {% block pagescript %}{% endblock %}
+
+    </body>
+
+</html>
