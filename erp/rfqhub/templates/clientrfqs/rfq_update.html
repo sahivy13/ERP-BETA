@@ -1,0 +1,182 @@
+{% extends 'html/base.html' %}
+
+{% comment %} {% load render_table from django_tables2 %} {% endcomment %}
+
+{% load crispy_forms_tags %}
+
+{% load static %}
+
+{% comment %} {% load crispy_forms_tags %} {% endcomment %}
+
+{% block content %}
+
+{% comment %} TITLE & BREADCRUMB {% endcomment %}
+<div class="page-breadcrumb">
+    <div class="row">
+        <div class="col-12 d-flex no-block align-items-center">
+            <h4 class="page-title">{{ instance.rfq_number }} - {{ instance.client }}</h4>
+            <div class="ms-auto text-right">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">RFQs</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'rfqhub:client-rfq-dashboard' %}">Clients Dashboard</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Update RFQ</li>
+
+                        <li class="breadcrumb-item active" aria-current="page">{{ instance }}</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid">
+
+    <div class="row">
+
+        {% comment %} RFQ Info {% endcomment %}
+        <div class="col-md-6">
+
+            <div class="card shadow">
+
+                <div class="card-body">
+
+                    <h5 class="card-title">RFQ Info</h5>
+                    
+                    <form method="post" class="form">
+                        {% csrf_token %}
+                        {{ form|crispy }}
+                        <br>
+                        <button type="submit" class="btn btn-success">Save</button>
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-md-6">
+
+            {% comment %} RFQ Status {% endcomment %}
+            <div class="card shadow">
+
+                <div class="card-body">
+
+                    <h5 class="card-title">RFQ Status</h5>
+
+                    <div class="pull-right m-t-30 text-right">
+                        <p>Requested: {{ instance.is_requested }} </p>
+                        <p>Quoted: {{ instance.is_quoted }} </p>
+                        <p>Ordered: {{ instance.is_ordered }} </p>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="row-md-6">
+
+        {% comment %} RFQ Items Card {% endcomment %}
+        <div class="card shadow">
+
+            <div class="card-body" id='rfq_item_container'>
+
+                {% include 'include/rfq_container.html' %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="row-md-6">
+
+        {% comment %} Product list Card {% endcomment %}
+        <div class="card shadow">
+
+            <div class="card-body" id="product_container">
+
+                {% include 'include/product_container.html' %}
+
+            </div>
+
+        </div>
+
+    
+    </div>
+
+</div>
+
+
+{% endblock %}
+
+{% block pagescript %}
+
+    <script type="text/javascript">
+                
+        $('.add_button').click(function (evt) {
+            evt.preventDefault();
+            const btn = $(this);
+            const url = btn.attr('data-href');
+            $.ajax({
+                method: 'GET',
+                dataType: 'json',
+                url: url,
+                success : function (data) {
+                    $('#rfq_item_container').html(data.result)
+                }
+            })
+        });
+        
+    </script>
+
+    <script>
+
+    $('.edit_button').click(function (evt) {
+        evt.preventDefault();
+        const btn = $(this);
+        const url = btn.attr('data-href');
+        $.ajax({
+            method: 'GET',
+            url: url,
+            dataType: 'json',
+
+            success: function (data) {
+                $('#rfq_item_container').html(data.result)
+            }
+        })
+    });
+
+    </script>
+
+    <!-- Page level plugins -->
+    <script src="{% static 'assets/libs/datatables/media/js/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'assets/extra-libs/DataTables/DataTables-1.10.16/js/dataTables.bootstrap4.min.js' %}"></script>
+
+    <!-- dataTable -->
+    <script>
+
+        $(document).ready(function(){
+            $('#dataTable').DataTable({
+                drawCallback: function() {
+                    $('[data-toggle="popover"]').popover();
+                }
+            });
+        });
+        
+    </script>
+
+    <script>
+
+        $(function () {
+        $('[data-toggle="popover"]').popover()
+        });
+
+    </script>
+
+{% endblock %}

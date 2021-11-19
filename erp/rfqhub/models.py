@@ -17,19 +17,28 @@ class ClientItemRFQ(models.Model):
     browser = RFQManager()
 
     notes = models.TextField(null=True, blank=True)
+
+    is_requested = models.BooleanField(default=False)
     is_quoted = models.BooleanField(default=False)
+    is_ordered = models.BooleanField(default=False)
 
     class Meta:
         ordering = ['-date_received']
     
+    def save(self, *args, **kwargs):
+        rfq_items = self.rfq_items.all()
+        # self.value = order_items.aggregate(Sum('total_price'))['total_price__sum'] if order_items.exists() else 0.00
+        # self.final_value = Decimal(self.value) - Decimal(self.discount)
+        super().save(*args, **kwargs)
+
     def __str__(self):
-        return self.name
+        return self.rfq_number
     
     def get_edit_url(self):
-        return reverse('update_clientitemrfq', kwargs={'pk': self.id})
+        return reverse('rfqhub:client-rfq-update', kwargs={'pk': self.id})
 
     def get_delete_url(self):
-        return reverse('delete_clientitemrfq', kwargs={'pk': self.id})
+        return reverse('rfqhub:delete_rfq', kwargs={'pk': self.id})
 
     @staticmethod
     def filter_data(request, queryset):
@@ -54,4 +63,11 @@ class RFQItem(models.Model):
     # price = models.DecimalField(default=0.00, decimal_places=2, max_digits=11)
 
     def __str__(self):
-        return f'{self.product.name}'
+        return f'{self.product.part_number} - {self.product.name}'
+
+# @receiver(post_delete, sender=OrderItem)
+# def delete_order_item(sender, instance, **kwargs):
+#     product = instance.product
+#     product.qty += instance.qty
+#     product.save()
+#     instance.order.save()

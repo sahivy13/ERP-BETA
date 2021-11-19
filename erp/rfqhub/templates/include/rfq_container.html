@@ -1,0 +1,63 @@
+
+<h5 class="card-title">RFQ Items</h5>
+
+<div class="table-responsive">
+    
+    <table class="table table-bordered" width="100%" cellspacing="0">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Part Number</th>
+                <th>Brand</th>
+                <th>Quantity</th>
+                {% comment %} <th>Volume</th> {% endcomment %}
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in rfq_items %}
+            <tr>
+                <td>
+                    {% comment %} data-toggle="popover" data-placement="top" title="Description" data-content="{{item.description}}" {% endcomment %}
+                    <button type="button" class="btn btn-primary" data-container="body">
+                        {{ item.product.name }}
+                    </button>
+                </td>
+                <td>{{ item.product.category }}</td>
+                <td>{{ item.product.part_number }}</td>
+                <td>{{ item.product.brand }}</td>
+                <td>{{ item.quantity }}</td>
+                {% comment %} <td>{{ item.volume }}</td> {% endcomment %}
+                <td>
+                    <button id="edit_add" data-href="{% url "ajax_modify" item.id "add" %}" class="btn btn-success edit_button"><i class="fa fa-arrow-up"></i></button>
+                    <button id="edit_remove" data-href="{% url "ajax_modify" item.id "remove" %}" class="btn btn-warning edit_button"><i class="fa fa-arrow-down"></i></button>
+                    <button id="edit_delete" data-href="{% url "ajax_modify" item.id "delete" %}" class="btn btn-danger edit_button"><i class="fa fa-trash"></i></button>
+
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Part Number</th>
+                <th>Brand</th>
+                <th>Quantity</th>
+                {% comment %} <th>Volume</th> {% endcomment %}
+                <th>Action</th>
+            </tr>
+        </tfoot>
+    </table>
+    
+</div>
+
+<div class="col-md-12">
+
+    <div class="text-right">
+        {% comment %} <a href="{% url 'done_rfq' instance.id %}" class="btn btn-success" type="submit"> Done </a>
+        <a onclick="return confirm('Are you sure?')" href="{% url 'delete_rfq' instance.id %}" class="btn btn-danger"> Delete </a> {% endcomment %}
+    </div>
+
+</div>

@@ -1,0 +1,47 @@
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">Analysis Type</th>
+            <th scope="col">Count RFQs</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        <tr>
+            <td>Total Requested</td>
+            <td>{{ total_rfqs_requested }}</td>
+        </tr>
+        <tr>
+            <td>Total Quoted</td>
+            <td>{{ total_rfqs_quoted }}</td>
+        </tr>
+        <tr>
+            <td class="danger">Total Ordered</td>
+            <td class="danger">{{ total_rfqs_ordered }}</td>
+        </tr>
+    </tbody>
+</table>
+
+{% comment %} {% if category %}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">Category</th>
+            <th scope="col">Qty</th>
+            <th scope="col">Incomes</th>
+        </tr>
+    </thead>
+    
+    <tbody>
+        {% for category in category_analysis %}
+            <tr>
+                <td>{{ category.0 }}</td>
+                <td>{{ category.1 }}</td>
+                <td>{{ category.2 }} {{ currency }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% else %} put the other result table here {% endif %}{% endcomment %}

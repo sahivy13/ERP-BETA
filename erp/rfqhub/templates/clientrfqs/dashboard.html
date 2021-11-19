@@ -1,0 +1,209 @@
+{% extends 'html/base.html' %}
+
+{% load render_table from django_tables2 %}
+
+{% load static %}
+
+{% block content %}
+ 
+<!-- BREAD CRUM AND RIGHT SIDEBAR TOGGLE -->
+<div class="page-breadcrumb">
+    <div class="row">
+        <div class="col-12 d-flex no-block align-items-center">
+            <h4 class="page-title">Client RFQs</h4>
+            <div class="ms-auto text-right">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">RFQs</li>
+                        <li class="breadcrumb-item active" aria-current="page">Clients Dashboard</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CONTAINER FLUID  -->
+<div class="container-fluid">
+
+    <!-- PAGE MAIN CONTENT -->
+    <div class="row">
+
+        <!-- CREATE NEW CLIENT RFQ -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card card-hover">
+                <a href="{% url 'rfqhub:client-rfq-create' %}">
+                    <div class="box bg-cyan text-center">
+                        <h1 class="font-light text-white"><i class="mdi mdi-view-dashboard"></i></h1>
+                        <h6 class="text-white">New RFQ</h6>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- LIST CLIENT RFQS -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card card-hover">
+                <a href="{% url 'rfqhub:client-rfq-list' %}">
+                    <div class="box bg-warning text-center">
+                        <h1 class="font-light text-white"><i class="mdi mdi-collage"></i></h1>
+                        <h6 class="text-white">View All Client's RFQs</h6>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- AUTO REPORT CREATOR -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card card-hover">
+                {% comment %} <!-- {% url 'create_auto' %} --> {% endcomment %}
+                <a href="#">
+                <div class="box bg-success text-center">
+                    <h1 class="font-light text-white"><i class="mdi mdi-chart-areaspline"></i></h1>
+                    <h6 class="text-white">Create Report</h6>
+                </div>
+                </a>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- CONTAINER -->
+    <div class="row">
+
+        <div class="col-md-6">
+
+            <!-- LATEST Client Item RFQs -->
+            <div class="card shadow">
+                <div class="card-body">
+                    <h4 class="card-title">Latest Client's RFQs</h4>
+                </div>
+                <div class="comment-widgets scrollable">
+                    {% render_table rfqs %}
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-md-6">
+
+            
+            <div class="card">
+
+                <!-- STATUS -->
+                <div class="card-body">
+
+                    <h4 class="card-title m-b-0">Status</h4>
+
+                    <div class="m-t-20">
+
+                        <!-- REQUESTED - PROGRESS BAR TITLE / RESULT -->
+                        <div class="d-flex no-block align-items-center">
+                            
+                            {% comment %} <span>{{ total_rfqs_requested_percentage }}% Requested to Distributors</span> {% endcomment %}
+                            <span>100% Requested to Distributors</span> {% comment %} REPLACE WITH PERCENTAGE OF RFQs REQUESTED {% endcomment %}
+                            
+                            <div class="ms-auto">                                       
+                                {% comment %} <span>{{ total_rfqs_requested }} RFQs</span> {% endcomment %}
+                                <span>420 RFQs</span> {% comment %} REPLACE WITH TAG FOR COUNT OF RFQs Requested {% endcomment %}
+                            </div>
+
+                        </div>
+
+                        <!-- REQUESTED - PROGRESS BAR -->
+                        <div class="progress">
+                            {% comment %} REPLACE STYLE WIDTH WITH PERCENTAGE OF QUOTED RFQs (style="width: {{ total_rfqs_requested_percentage }}%") {% endcomment %}
+                            <div 
+                                class="progress-bar progress-bar-striped"
+                                role="progressbar"
+                                style="width: 100%"
+                                aria-valuenow="10"
+                                aria-valuemin="0"
+                                aria-valuemax="100"
+                            ></div>
+                        </div>
+
+                    </div>
+
+                    <div>
+
+                        <!-- QUOTED - PROGRESS BAR TITLE / RESULT -->
+                        <div class="d-flex no-block align-items-center m-t-25">
+                            
+                            {% comment %} <span>{{ total_rfqs_quoted_percentage }}% Quoted</span> {% endcomment %}
+                            <span>100% Quoted</span> {% comment %} REPLACE WITH PERCENTAGE OF QUOTED RFQs {% endcomment %}
+                            
+                            <div class="ms-auto">
+                                {% comment %} REPLACE WITH COUNT OF QUOATED {% endcomment %}
+                                {% comment %} <span>{{ total_rfqs_quoted }} RFQs</span> {% endcomment %}
+                                <span>420 RFQs</span>
+                            </div>
+
+                        </div>
+
+                        <!-- QUOTED - PROGRESS BAR -->
+                        <div class="progress">
+                            {% comment %} REPLACE STYLE WIDTH WITH PERCENTAGE OF QUOTED RFQs (style="width: {{ total_rfqs_quoted_percentage }}%") {% endcomment %}
+                            <div 
+                                class="progress-bar progress-bar-striped bg-success"
+                                role="progressbar"
+                                style="width: 100%" 
+                                aria-valuenow="25"
+                                aria-valuemin="0"
+                                aria-valuemax="100"
+                            ></div> 
+                        </div>
+
+                    </div>
+
+                    <div>
+
+                        <!-- ORDERED - PROGRESS BAR TITLE / RESULT -->
+                        <div class="d-flex no-block align-items-center m-t-25">
+                            
+                            {% comment %} <span>{{ total_rfqs_ordered_percentage }}% Ordered</span> {% endcomment %}
+                            <span>50% Ordered</span> {% comment %} REPLACE WITH PERCENTAGE OF RFQs ORDERED {% endcomment %}
+
+                            <div class="ms-auto">
+                                {% comment %} <span>{{ total_rfqs_ordered }} RFQs</span> {% endcomment %}
+                                <span>210 RFQs</span> {% comment %} REPLACE WITH COUNT OF RFQs ORDERED {% endcomment %}
+                            </div>
+                            
+                        </div>
+
+                        <!-- ORDERED - PROGRESS BAR -->
+                        <div class="progress">
+                            {% comment %} REPLACE STYLE WIDTH WITH PERCENTAGE OF ORDERED RFQs (style="width: {{ total_rfqs_ordered_percentage }}%") {% endcomment %}
+                            <div 
+                                class="progress-bar progress-bar-striped bg-info" 
+                                role="progressbar" 
+                                style="width: 50%" 
+                                aria-valuenow="50" 
+                                aria-valuemin="0"
+                                aria-valuemax="100"
+                            ></div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+<!-- PAGE SCRIPTS -->
+{% block pagescript %}
+
+<script src="{% static 'assets/libs/moment/min/moment.min.js' %}"></script>
+<script src="{% static 'assets/libs/fullcalendar/dist/fullcalendar.min.js' %}"></script>
+<script src="{% static 'dist/js/pages/calendar/cal-init.js' %}"></script>
+
+{% endblock %}

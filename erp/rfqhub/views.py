@@ -1,4 +1,4 @@
-from django.shortcuts import render, reverse, get_object_or_404
+from django.shortcuts import render, reverse, get_object_or_404, redirect
 from django.contrib import messages
 from django.template.loader import render_to_string
 from django.http import JsonResponse
@@ -77,33 +77,184 @@ class ClientItemRFQListView(generic.ListView):
         context.update(locals())
         return context
 
+# @method_decorator(staff_member_required, name='dispatch')
 class ClientItemRFQCreateView(generic.CreateView):
     template_name = "clientrfqs/rfq_create.html"
     form_class = ClientItemRFQCreateForm
+    model = ClientItemRFQ
+
     def get_success_url(self) -> str:
-        return reverse("rfqhub:client-rfq-list")
+        self.new_object.refresh_from_db()
+        return reverse("rfqhub:client-rfq-update", kwargs={'pk': self.new_object.id})
 
     def form_valid(self, form):
-        item = form.save(commit=False)
-        item.save()
+        object = form.save()
+        object.refresh_from_db()
+        self.new_object = object
         return super(ClientItemRFQCreateView, self).form_valid(form)
 
+# @method_decorator(staff_member_required, name='dispatch')
 class ClientItemRFQUpdateView(generic.UpdateView):
     template_name = "clientrfqs/rfq_update.html"
     form_class = ClientItemRFQEditForm
-    
-    def get_queryset(self):
-        return ClientItemRFQ.objects.all()
+    model = ClientItemRFQ
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        instance = self.object
+        rfq_p = ProductItem.objects.filter(active=True) #[:12] - THIS ONE WAS WITH django-tables2
+        # products = ProductTable(rfq_p)
+        # rfq_items = RFQItemTable(instance.rfq_items.all()) - THIS ONE WAS WITH django-tables2
+        rfq_items = RFQItem.objects.filter(rfq=instance)
+        # RequestConfig(self.request).configure(products)
+        # RequestConfig(self.request).configure(rfq_items)
+        context.update(locals())
+        return context
 
     def get_success_url(self) -> str:
-        return reverse("rfqhub:client-rfq-list")
+        return reverse("rfqhub:client-rfq-update", kwargs={'pk': self.object.id})
 
-class ClientItemRFQDeleteView(generic.DeleteView):
-    template_name = "clientrfqs/rfq_delete.html"
+
+# --- Delete View Old Way ---
+# class ClientItemRFQDeleteView(generic.DeleteView):
+#     template_name = "clientrfqs/rfq_delete.html"
     
-    def get_queryset(self):
-        return ClientItemRFQ.objects.all()
+#     def get_queryset(self):
+#         return ClientItemRFQ.objects.all()
     
+#     def get_success_url(self) -> str:
+#         return reverse("rfqhub:client-rfq-list")
+
+# @staff_member_required
+def delete_rfq(request, pk):
+    instance = get_object_or_404(ClientItemRFQ, id=pk)
+    instance.delete()
+    messages.warning(request, 'The rfq is deleted!')
+    return redirect(reverse('rfqhub:client-rfq-list'))
+
+# @staff_member_required - replaces done_order_view
+def quoted_rfq_view(request, pk):
+    instance = get_object_or_404(ClientItemRFQ, id=pk)
+    instance.is_quoted = True
+    instance.save()
+    messages.warning(request, 'The RFQ has been marked as quoted!')
+    return redirect(reverse('rfqhub:client-rfq-list'))
+
+# @staff_member_required
+def ajax_add_product(request, pk, dk):
+
+    instance = get_object_or_404(ClientItemRFQ, id=pk)
+    product = get_object_or_404(ProductItem, id=dk)
+
+    rfq_item, created = RFQItem.objects.get_or_create(rfq=instance, product=product)
+
+    if created:
+        rfq_item.quantity = 1
+        # order_item.price = product.value
+        # order_item.discount_price = product.discount_value
+
+    else:
+        rfq_item.quantity += 1
+
+    rfq_item.save()
+
+    instance.refresh_from_db()
+
+    rfq_items = instance.rfq_items.all()
+
+    data = dict()
+
+    data['result'] = render_to_string(
+        template_name='include/rfq_container_ajax.html',
+        request=request,context={
+            'instance': instance,
+            'rfq_items': rfq_items
+        }
+    )
+
+    return JsonResponse(data)
+
+# @staff_member_required
+def ajax_modify_rfq_item(request, pk, action):
+
+    rfq_item = get_object_or_404(RFQItem, id=pk)
+
+    instance = get_object_or_404(ClientItemRFQ, id=rfq_item.rfq_id)
+
+    if action == 'remove':
+        rfq_item.quantity -= 1
+
+        if rfq_item.quantity < 1:
+            rfq_item.quantity = 1
+
+    if action == 'add':
+        rfq_item.quantity += 1
+
+    rfq_item.save()
+
+    if action == 'delete':
+        rfq_item.delete()
+
+    instance.refresh_from_db()
+
+    rfq_items = instance.rfq_items.all()
+
+    data = dict()
+
+    data['result'] = render_to_string(
+        template_name='include/rfq_container_ajax.html',
+        request=request,
+        context={
+            'instance': instance,
+            'rfq_items': rfq_items,
+        }
+    )
+
+    return JsonResponse(data)
+
+
+# @staff_member_required
+# def ajax_modify_rfq_item(request, pk, action):
+
+#     rfq_item = get_object_or_404(RFQItem, id=pk)
+#     # product = rfq_item.product
+#     instance = rfq_item.rfq
+
+#     if action == 'remove':
+#         rfq_item.quantity -= 1
+#         # product.qty += 1
+#         if rfq_item.quantity < 1:
+#             rfq_item.quantity = 1
+
+#     if action == 'add':
+#         rfq_item.quantity += 1
+#         # product.qty -= 1
+
+#     # product.save()
+#     rfq_item.save()
+
+#     if action == 'delete':
+#         rfq_item.delete()
+
+#     data = dict()
+#     instance.refresh_from_db()
+
+#     # rfq_items = RFQItemTable(instance.rfq_items.all())
+#     rfq_items = instance.rfq_items.all()
+
+#     RequestConfig(request).configure(rfq_items)
+
+#     data['result'] = render_to_string(
+#         template_name='include/rfq_container.html',
+#         request=request,
+#         context={
+#             'instance': instance,
+#             'rfq_items': rfq_items
+#         }
+#     )
+
+#     return JsonResponse(data)
+
 # @staff_member_required
 def ajax_search_products(request, pk):
     instance = get_object_or_404(ClientItemRFQ, id=pk)
@@ -113,14 +264,25 @@ def ajax_search_products(request, pk):
     products = ProductTable(products)
     RequestConfig(request).configure(products)
     data = dict()
-    data['products'] = render_to_string(template_name='include/product_container.html',
-                                        request=request,
-                                        context={
-                                            'products': products,
-                                            'instance': instance
-                                        })
+    data['products'] = render_to_string(
+        template_name='include/product_container.html',
+        request=request,
+        context={
+            'products': products,
+            'instance': instance
+        }
+    )
     return JsonResponse(data)
 
+# @staff_member_required
+def rfq_action_view(request, pk, action):
+    instance = get_object_or_404(ClientItemRFQ, id=pk)
+    if action == 'is_requested': #replaces is_paid
+        instance.is_requested = True
+        instance.save()
+    if action == 'delete':
+        instance.delete()
+    return redirect(reverse('client-rfq-list'))
 
 # @staff_member_required
 def ajax_calculate_results_view(request):
@@ -148,16 +310,17 @@ def ajax_calculate_category_view(request):
 
     rfqs = ClientItemRFQ.filter_data(request, ClientItemRFQ.objects.all())
 
-    order_items = OrderItem.objects.filter(order__in=orders)
+    rfq_items = RFQItem.objects.filter(order__in=rfqs)
 
-    category_analysis = order_items.values_list('product__category__title').annotate(
-        qty=Sum('qty'),
-        total_incomes=Sum('total_price')
+    category_analysis = rfq_items.values_list('product__category__title').annotate(
+        quantity=Sum('quantity'),
+        # total_incomes=Sum('total_price')
     )
 
     data = dict()
 
-    category, currency = True, CURRENCY
+    # category, currency = True, CURRENCY
+    category = True
 
     data['result'] = render_to_string(
         template_name='include/result_container.html',
@@ -165,21 +328,4 @@ def ajax_calculate_category_view(request):
         context=locals()
     )
 
-# Create your views here.
-
-# @staff_member_required
-def ajax_search_products(request, pk):
-    instance = get_object_or_404(ClientItemRFQ, id=pk)
-    q = request.GET.get('q', None)
-    products = ProductItem.broswer.active().filter(title__startswith=q) if q else ProductItem.broswer.active()
-    products = products[:12]
-    products = ProductTable(products)
-    RequestConfig(request).configure(products)
-    data = dict()
-    data['products'] = render_to_string(template_name='include/product_container.html',
-                                        request=request,
-                                        context={
-                                            'products': products,
-                                            'instance': instance
-                                        })
     return JsonResponse(data)

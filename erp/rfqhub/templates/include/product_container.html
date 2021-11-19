@@ -1,0 +1,51 @@
+
+<h5 class="card-title">Product List</h5>
+
+<div class="table-responsive">
+
+    <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Part Number</th>
+                <th>Brand</th>
+                {% comment %} <th>Weight</th> {% endcomment %}
+                {% comment %} <th>Volume</th> {% endcomment %}
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in rfq_p %}
+            <tr>
+                <td>
+                    {% comment %} data-toggle="popover" data-placement="top" title="Description" data-content="{{item.description}}" {% endcomment %}
+                    <button type="button" class="btn btn-primary" data-container="body">
+                        {{ item.name }}
+                    </button>
+                </td>
+                <td>{{ item.category }}</td>
+                <td>{{ item.part_number }}</td>
+                <td>{{ item.brand }}</td>
+                {% comment %} <td>{{ item.weight }}</td> {% endcomment %}
+                {% comment %} <td>{{ item.volume }}</td> {% endcomment %}
+                <td>
+                    <button class="btn btn-info add_button" data-href="{% url "ajax_add" instance.id item.id %}">Add!</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Part Number</th>
+                <th>Brand</th>
+                {% comment %} <th>Weight</th> {% endcomment %}
+                {% comment %} <th>Volume</th> {% endcomment %}
+                <th>Action</th>
+            </tr>
+        </tfoot>
+    </table>
+    
+</div>

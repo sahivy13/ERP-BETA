@@ -20,4 +20,6 @@ class ClientItemRFQEditForm(BaseForm, forms.ModelForm):
 
     class Meta:
         model = ClientItemRFQ
-        fields = ['client', 'rfq_number', 'date_received', 'is_quoted']
+        fields = ['client', 'rfq_number', 'date_received']
+        # widgets = {
+        #     'date_received' : DateField(
